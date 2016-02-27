@@ -31,4 +31,15 @@ public class Application {
     public void setReleaseDate(String releaseDate) {
         this.releaseDate = releaseDate;
     }
+
+    // Here we override the toString() method so that we can return the fields that we want
+    // These will be displayed as the list entries within the ListView
+
+    @Override
+    public String toString() {
+
+        return  "Name: "+getName() + "\n" +
+                "Artist: "+getArtist() + "\n" +
+                "Release Date:"+getReleaseDate() + "\n";
+    }
 }

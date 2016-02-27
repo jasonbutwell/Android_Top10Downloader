@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 
@@ -43,12 +44,16 @@ public class MainActivity extends AppCompatActivity {
         btnParse.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO: Add Parse activation code
                 ParseApplications parseApplications = new ParseApplications(mFileContents);
                 parseApplications.process();
+
+                // We need an ArrayAdapter to show the contents of the array
+                ArrayAdapter<Application> arrayAdapter = new ArrayAdapter<Application>(MainActivity.this, R.layout.list_item, parseApplications.getApplications());
+                listApps.setAdapter(arrayAdapter);
             }
         });
 
+        // Example URL to use for XML file source
         String parseURL = "http://ax.itunes.apple.com/WebObjects/MZStoreServices.woa/ws/RSS/topfreeapplications/limit=10/xml";
         DownloadData downloadData = new DownloadData(this);
 
@@ -80,8 +85,7 @@ public class MainActivity extends AppCompatActivity {
     class DownloadData extends AsyncTask<String, Void, String> {
 
         private MainActivity mainActivity;
-        //private String mFileContents;
-
+        
         public DownloadData(MainActivity mainActivity) {
             this.mainActivity = mainActivity;
         }

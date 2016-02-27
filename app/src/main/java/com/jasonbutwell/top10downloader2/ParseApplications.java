@@ -1,7 +1,5 @@
 package com.jasonbutwell.top10downloader2;
 
-import android.util.Log;
-
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
@@ -86,16 +84,17 @@ public class ParseApplications {
             e.printStackTrace();
         }
 
-        // loop through arrary list as app for reference
+        // loop through array list as app for reference
         // output the values of what we pull from the XML tags we are interested in.
         // Use tag 'ParseApplications' in logCat filter to see the results.
-        for (Application app : applications )
-        {
-            Log.d("ParseApplications", "************");
-            Log.d("ParseApplications", "Name: "+ app.getName());
-            Log.d("ParseApplications", "Artist: "+ app.getArtist());
-            Log.d("ParseApplications", "Release Date: "+ app.getReleaseDate());
-        }
+
+//        for (Application app : applications )
+//        {
+//            Log.d("ParseApplications", "************");
+//            Log.d("ParseApplications", "Name: "+ app.getName());
+//            Log.d("ParseApplications", "Artist: "+ app.getArtist());
+//            Log.d("ParseApplications", "Release Date: "+ app.getReleaseDate());
+//        }
 
         return true;
     }
