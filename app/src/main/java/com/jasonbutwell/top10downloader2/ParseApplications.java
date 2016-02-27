@@ -26,8 +26,8 @@ public class ParseApplications {
 
     public boolean process() {
         boolean status = true;
-        Application currentRecord;
-        boolean isEntry = false;
+        Application currentRecord = null;
+        boolean inEntry = false;
         String textValue = "";
 
         try {
@@ -43,15 +43,36 @@ public class ParseApplications {
                 switch(eventType)
                 {
                     case XmlPullParser.START_TAG:
-                        Log.d("ParseApplications", "Starting Tag for "+ tagName);
+//                        Log.d("ParseApplications", "Starting Tag for "+ tagName);
 
                         if (tagName.equalsIgnoreCase("entry")) {
-                            isEntry = true;
+                            inEntry = true;
                             currentRecord = new Application();
-                            break;
+                            //break;
+                            // break removed from here. Bug fix #1
                         }
+                        break;
+                    // break inserted here! Bug fix #1
+
+                    case XmlPullParser.TEXT:
+                            textValue = xpp.getText();
+                        break;
+
+                    // Implemented functionality for read the data from the tags that we are interested in.
                     case XmlPullParser.END_TAG:
-                        Log.d("ParseApplications", "Ending Tag for "+ tagName);
+//                        Log.d("ParseApplications", "Ending Tag for "+ tagName);
+                        if (inEntry) {
+                            if (tagName.equalsIgnoreCase("entry")) {
+                                applications.add(currentRecord);
+                                inEntry = false;
+                            } else if (tagName.equalsIgnoreCase("name")) {
+                                currentRecord.setName(textValue);
+                            } else if (tagName.equalsIgnoreCase("artist")) {
+                                currentRecord.setArtist(textValue);
+                            } else if (tagName.equalsIgnoreCase("releaseDate")) {
+                                currentRecord.setReleaseDate(textValue);
+                            }
+                        }
                         break;
 
                     default:
@@ -63,6 +84,17 @@ public class ParseApplications {
         }catch(Exception e) {
             status = false;
             e.printStackTrace();
+        }
+
+        // loop through arrary list as app for reference
+        // output the values of what we pull from the XML tags we are interested in.
+        // Use tag 'ParseApplications' in logCat filter to see the results.
+        for (Application app : applications )
+        {
+            Log.d("ParseApplications", "************");
+            Log.d("ParseApplications", "Name: "+ app.getName());
+            Log.d("ParseApplications", "Artist: "+ app.getArtist());
+            Log.d("ParseApplications", "Release Date: "+ app.getReleaseDate());
         }
 
         return true;
