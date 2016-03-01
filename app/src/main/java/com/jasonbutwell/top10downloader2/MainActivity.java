@@ -25,6 +25,8 @@ public class MainActivity extends AppCompatActivity {
      * See https://g.co/AppIndexing/AndroidStudio for more information.
      */
 
+    // stores for button, listview and XML string buffer contents
+
     private Button btnParse;
 
     private ListView listApps;
@@ -38,14 +40,23 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        // Get the ids of the XML parse button and the listview
+
         btnParse = (Button)findViewById(R.id.btnParse);
         listApps = (ListView)findViewById(R.id.xmlListView);
+
+        // create a click listener for the button
 
         btnParse.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                // create new instance of the ParseApplications class passing in the XML we read in
                 ParseApplications parseApplications = new ParseApplications(mFileContents);
+                // call the process() method to process the XML and pull the tags
                 parseApplications.process();
+
+                // setup array list adapter to show array contents within our listview
 
                 // We need an ArrayAdapter to show the contents of the array
                 ArrayAdapter<Application> arrayAdapter = new ArrayAdapter<Application>(MainActivity.this, R.layout.list_item, parseApplications.getApplications());
@@ -55,8 +66,11 @@ public class MainActivity extends AppCompatActivity {
 
         // Example URL to use for XML file source
         String parseURL = "http://ax.itunes.apple.com/WebObjects/MZStoreServices.woa/ws/RSS/topfreeapplications/limit=10/xml";
+
+        // create new instance of DownloadData class
         DownloadData downloadData = new DownloadData(this);
 
+        // call it's execute method to parse the URL of the XML
         downloadData.execute(parseURL);
     }
 
@@ -82,10 +96,13 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    // We use an AsyncTask to do the reading of the XML to prevent blocking
+    // and also in case we want to cancel the task
     class DownloadData extends AsyncTask<String, Void, String> {
 
+        // stores the context of the main activity
         private MainActivity mainActivity;
-        
+
         public DownloadData(MainActivity mainActivity) {
             this.mainActivity = mainActivity;
         }
@@ -99,43 +116,62 @@ public class MainActivity extends AppCompatActivity {
         // String... = Variable number of arguments (works like an array of arguments)
         @Override
         protected String doInBackground(String... params) {
+            // call to download the XML using the first parameter as the filename from the argument array
             mFileContents = downloadXMLFile(params[0]);
+            // check if we actually downloaded something
             if (mFileContents == null) {
                 Log.d("DownloadData", "Error Downloading");
             }
 
+            // return back what we downloaded
             return mFileContents;
         }
 
+        // the method that does the actual reading of the XML from the URL
         private String downloadXMLFile(String urlPath) {
+            // temporary store as a StringBuilder
             StringBuilder tempBuffer = new StringBuilder();
+            // try - catch to handle possible IOException
             try {
+                // format as an actual URL we can use
                 URL url = new URL(urlPath);
+                // create connection to web resource
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
+                // response holds the response code
                 int response = connection.getResponseCode();
+                // output the response code to LogCat so we can check everything went ok.
                 Log.d("DownloadData", "The response code was " + response);
 
+                // Input stream reader initialisation
                 InputStream is = connection.getInputStream();
                 InputStreamReader isr = new InputStreamReader(is);
 
+                // char buffer
                 int charRead;
+                // buffer will read data in 500 byte chunks
                 char[] inputBuffer = new char[500];
 
+                // loop and read the characters while there are characters present
                 while (true) {
                     charRead = isr.read(inputBuffer);
+
+                    // if the character read is less than or equal to 0 then we break the read loop
                     if (charRead <= 0) {
                         break;
                     }
+                    // if not 0 then append the input buffer of 500 chars onto the stringbuilder
                     tempBuffer.append(String.copyValueOf(inputBuffer, 0, charRead));
                 }
 
+                // return the whole buffer (converted to string)
                 return tempBuffer.toString();
 
             } catch (IOException e) {
                 Log.d("DownloadData", "IO Exception reading data: " + e.getMessage());
             }
 
+            // if there was a problem then we return null
             return null;
         }
     }
